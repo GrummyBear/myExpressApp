@@ -7,19 +7,28 @@ var bodyParser = require('body-parser');
 var nconf = require('nconf');
 var winston = require('winston');
 var nunjucks = require('nunjucks');
-var ig=require('instagram-node').instagram();
+var ig = require('instagram-node').instagram();
+
+
 ig.use({"client_id":"98d00d95db5540ed986ce0eb2f9e0c46",
 "client_secret":"71bf749dd61947ada2e77f556c463d30"});
 
+//ig.media_popular(function(err, media, limit){
+//  if (err){ throw err; }
+//  console.log(media);
+//})
+
+//  routes
 var index = require('./routes/index');
 var users = require('./routes/users');
+var popular = require('./routes/popular');
 
 var app = express();
 
 nunjucks.configure('views', {
   autoescape:true,
   express:app
-})
+});
 
 nconf.file("config.json");
 
@@ -51,6 +60,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/popular', popular);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
