@@ -8,6 +8,7 @@ var nconf = require('nconf');
 var winston = require('winston');
 var nunjucks = require('nunjucks');
 var ig = require('instagram-node').instagram();
+const MongoClient = require('mongodb').MongoClient;
 
 
 ig.use({"client_id":"98d00d95db5540ed986ce0eb2f9e0c46",
@@ -24,10 +25,17 @@ var users = require('./routes/users');
 var popular = require('./routes/popular');
 
 var app = express();
+var db;
 
 nunjucks.configure('views', {
   autoescape:true,
   express:app
+});
+
+MongoClient.connect('mongodb://graeme2:password@localhost/star-wars-quotes', (err, database) => {
+  // ... start the server
+  if (err) return console.log(err);
+  db = database;
 });
 
 nconf.file("config.json");
@@ -54,9 +62,28 @@ app.set('view engine', 'html');
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.post('/quotes', (req, res) => {
+  winston.info(req.body);
+  db.collection('quotes').save(req.body, function(err, result){
+    if(err) return winston.error(err);
+    winston.info('saved to database');
+    res.redirect('/');
+  })
+});
+
+app.get('/', function(req, res){
+  var cursor = db.collection('quotes').find()
+  db.collection('quotes').find().toArray(function(err, results) {
+    winston.info(results);
+    console.log(results)
+    res.render('index.html',{quotes:results});
+// send HTML file populated with quotes here
+  })
+});
 
 app.use('/', index);
 app.use('/users', users);

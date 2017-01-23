@@ -1,6 +1,31 @@
 {% extends "layout.html" %}
 
 {% block content %}
-  <h1>Express</h1>
-  <p> Welcome to Express</p>
+  <h1>May the Node be with you!</h1>
+  <p>Star Wars Quotes</p>
+
+  <ul class = "quotes">
+    {% for q in quotes %}
+    <li class = "quote">
+      <span>{{q.name}}:</span>
+      <span>"{{q.quote}}"</span>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <form action = "/quotes" method = "POST">
+    <input type = "text" placeholder = "name" name = "name">
+    <input type = "text" placeholder = "quote" name = "quote">
+    <button type ="submit">Submit</button>
+  </form>
+
+<div>
+  <h2>Replace last quote written by Master Yoda with a quote written by Darth Vader</h2>
+  <button id = "update">Darth Vader Invades!</button>
+</div>
+
+<script src="/javascript/main.js">
+
+</script>
+
 {% endblock %}
